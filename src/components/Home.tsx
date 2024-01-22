@@ -33,8 +33,8 @@ const Home = () => {
       <Typography variant="h3" p={"2rem 0"} textAlign={"center"}>
         Welcome to LinguaQuest!
       </Typography>
-      <Typography variant="h6">
-        Start your language-learning journey with LinguaQuest.
+      <Typography variant="h6" p={"0 2rem"}>
+        Start your language-learning journey.
       </Typography>
 
       <Stack
@@ -52,23 +52,22 @@ const Home = () => {
 
       <Stack
         direction={"row"}
-        spacing={"2rem"}
+        // spacing={"2rem"}
         p={"2rem"}
         alignItems={"center"}
         justifyItems={"center"}
+        sx={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}
       >
-        <div style={{display:"flex", gap:"1rem", flexWrap:"wrap"}}>
-          {languages.map((i) => (
-            <Button
-              variant="contained"
-              key={i.code}
-              fullWidth
-              onClick={() => languageSelectHandler(i.code)}
-            >
-              {i.name}
-            </Button>
-          ))}
-        </div>
+        {languages.map((i) => (
+          <Button
+            variant="contained"
+            key={i.code}
+           sx={{width: "40%",}}
+            onClick={() => languageSelectHandler(i.code)}
+          >
+            {i.name}
+          </Button>
+        ))}
       </Stack>
     </Container>
   );
