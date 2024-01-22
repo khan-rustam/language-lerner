@@ -1,67 +1,74 @@
-/* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from "axios";
 import { generate } from "random-words";
 import _ from "lodash";
 
-const generateMCQ = (meaning: { Text: string }[], idx: number): string[] => {
-  const correctAnswer: string = meaning[idx].Text;
+const generateMCQ = (
+  meaning: {
+    Text: string;
+  }[],
+  idx: number
+): string[] => {
+  const correctAns: string = meaning[idx].Text;
 
-  const allMeaningExceptCorrect = meaning.filter(
-    (i) => i.Text !== correctAnswer
+  // An Array with all words except for correct ans
+  const allMeaningExceptForCorrect = meaning.filter(
+    (i) => i.Text !== correctAns
   );
 
-  const wrongAnswer: string[] = _.sampleSize(allMeaningExceptCorrect, 3).map(
-    (i) => i.Text
-  );
+  // Randomly genrating 3 elements from incorrectArray
+  const incorrectOptions: string[] = _.sampleSize(
+    allMeaningExceptForCorrect,
+    3
+  ).map((i) => i.Text);
 
-  const mcqOptions = _.shuffle([...wrongAnswer, correctAnswer]);
+  const mcqOptions = _.shuffle([...incorrectOptions, correctAns]);
 
   return mcqOptions;
 };
 
-export const translateWords = async (language: LangType) => {
+export const translateWords = async (params: LangType): Promise<WordType[]> => {
   try {
-    const words = generate(10).map((i) => ({
+    const words = generate(8).map((i) => ({
       Text: i,
     }));
 
-    const apiKey = import.meta.env.VITE_MICROSOFT_API;
+    const apikey = import.meta.env.VITE_MICROSOFT_API;
 
-
-    const responce = await axios.post(
+    const response = await axios.post(
       "https://microsoft-translator-text.p.rapidapi.com/translate",
       words,
       {
         params: {
-          "to[0]": language,
+          "to[0]": params,
           "api-version": "3.0",
           profanityAction: "NoAction",
           textType: "plain",
         },
+
         headers: {
           "content-type": "application/json",
-          "X-RapidAPI-Key": apiKey,
+          "X-RapidAPI-Key": apikey,
           "X-RapidAPI-Host": "microsoft-translator-text.p.rapidapi.com",
         },
       }
     );
 
-    const recieve: FetchDataType[] = responce.data;
+    const receive: FetchedDataType[] = response.data;
 
-    const arr: WordType[] = recieve.map((i, idx) => {
+    const arr: WordType[] = receive.map((i, idx) => {
       const options: string[] = generateMCQ(words, idx);
 
       return {
         word: i.translations[0].text,
         meaning: words[idx].Text,
-        options: options,
+        options,
       };
     });
 
     return arr;
   } catch (error) {
     console.log(error);
+    throw new Error("Some Error");
   }
 };
 
@@ -71,13 +78,13 @@ export const countMatchingElements = (
 ): number => {
   if (arr1.length !== arr2.length) throw new Error("Arrays are not equal");
 
-  let matchingCount = 0;
+  let matchedCount = 0;
 
   for (let i = 0; i < arr1.length; i++) {
-    if (arr1[i] === arr2[i]) matchingCount++;
+    if (arr1[i] === arr2[i]) matchedCount++;
   }
 
-  return matchingCount;
+  return matchedCount;
 };
 
 export const fetchAudio = async (
