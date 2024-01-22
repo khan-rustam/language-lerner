@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, Container, Stack, Typography } from "@mui/material";
-import { ChevronLeft, Volume2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { Container, Button, Stack, Typography } from "@mui/material";
+
 import { fetchAudio, translateWords } from "../utils/features";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -12,18 +11,19 @@ import {
   getWordsSuccess,
 } from "../redux/slices";
 import Loader from "./Loader";
+import { ArrowLeft, Volume2 } from "lucide-react";
 
 const Learning = () => {
   const [count, setCount] = useState<number>(0);
-  const params = useSearchParams()[0].get("language") as LangType;
-
   const [audioSrc, setAudioSrc] = useState<string>("");
   const audioRef = useRef(null);
+
+  const params = useSearchParams()[0].get("language") as LangType;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { words, loading, error } = useSelector(
+  const { loading, error, words } = useSelector(
     (state: { root: StateType }) => state.root
   );
 
@@ -33,19 +33,18 @@ const Learning = () => {
     if (player) {
       player.play();
     } else {
-      const data: string = await fetchAudio(words[count]?.word, params);
+      const data = await fetchAudio(words[count]?.word, params);
       setAudioSrc(data);
     }
   };
 
-  const nextHandler = () => {
+  const nextHandler = (): void => {
     setCount((prev) => prev + 1);
-    setAudioSrc("")
+    setAudioSrc("");
   };
 
   useEffect(() => {
     dispatch(getWordsRequest());
-
     translateWords(params || "hi")
       .then((arr) => dispatch(getWordsSuccess(arr)))
       .catch((err) => dispatch(getWordsFail(err)));
@@ -54,48 +53,57 @@ const Learning = () => {
       alert(error);
       dispatch(clearState());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) return <Loader />;
+
   return (
     <Container
-      maxWidth={"sm"}
+      maxWidth="sm"
       sx={{
         padding: "1rem",
       }}
     >
       {audioSrc && <audio src={audioSrc} autoPlay ref={audioRef}></audio>}
+
       <Button
-        sx={{ color: "black" }}
         onClick={
           count === 0 ? () => navigate("/") : () => setCount((prev) => prev - 1)
         }
       >
-        <ChevronLeft size={32} />
+        <ArrowLeft />
       </Button>
-      <Typography m={"2rem 0"}>Learning is fun and interactive.</Typography>
+      <Typography m={"2rem 0"}>Learning Made Easy</Typography>
 
-      <Stack mt={"5rem"} direction={"row"} spacing={"1rem"}>
-        <Typography variant="h4">
+      <Stack direction={"row"} spacing={"1rem"}>
+        <Typography variant={"h4"}>
           {count + 1} - {words[count]?.word}
         </Typography>
         <Typography color={"blue"} variant="h4">
-          {" "}
           : {words[count]?.meaning}
         </Typography>
-        <Button sx={{ borderRadius: "50%" }}>
-          <Volume2 size={32} onClick={audioHandler} />
+        <Button
+          sx={{
+            borderRadius: "50%",
+          }}
+          onClick={audioHandler}
+        >
+          <Volume2 />
         </Button>
       </Stack>
+
       <Button
-        sx={{ margin: "5rem 0" }}
+        sx={{
+          margin: "3rem 0",
+        }}
         variant="contained"
         fullWidth
         onClick={
-          count == words.length - 1 ? () => navigate("/quiz") : nextHandler
+          count === words.length - 1 ? () => navigate("/quiz") : nextHandler
         }
       >
-        {count == words.length - 1 ? "Start Quiz" : "Next"}
+        {count === words.length - 1 ? "Text" : "Next"}
       </Button>
     </Container>
   );
