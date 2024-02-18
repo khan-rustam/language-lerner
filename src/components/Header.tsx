@@ -31,17 +31,6 @@ const Header = () => {
           >
             Home
           </Button>
-
-          {/* Login Link */}
-
-          <Button
-            sx={{ fontWeight: "700", letterSpacing: "1px" }}
-            color="inherit"
-            component={Link}
-            to="/login"
-          >
-            Login
-          </Button>
         </Toolbar>
       </Container>
     </AppBar>
